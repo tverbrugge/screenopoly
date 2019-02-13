@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Outside 🌇</title>
+    <style>
+
+        /* a note re: height and width.  Start off by adding to .site-container {} the final width and height
+           you want to see in the final product.  Aspect ratio is totally up to you.
+           Then pick the size of iframe you want to minimize.  If you want to see the page as if it were a
+           mini desktop, you'll want desktop dimensions.  If you want to see the sites as they would
+           appear on a phone, you'll want some smaller width.  It's up to you.  I've gone with a
+           mini-desktop, picking a smallish desktop resolution (1000px wide).  Add these height and
+           width values to .site-container iframe {}.
+           The aspect ratio (w/h) should match for both sets!  If you pick 4:3 for .thumbnail, the
+           math has to match for .thumbnail iframe, at least if you want only one scale value to use
+           across the board.
+           Finally, divide the smaller .thumbnail height (or width) by the iframe height (or width) and
+           *THAT* will be your scale value, which will be added in your transform scales in this file and
+           in ie-only.css.  */
+
+        .site-container { /* the width and height here are your resultant sizes. */
+            width: 720px;
+            height: 540px;
+            float: left;
+            margin: 10px;
+            position: relative;
+        }
+
+        .site-container iframe { /* the width and height here are your "unshrunken" sizes.  Important bc of the scale variable later. */
+            position: relative;
+            z-index: 1;
+            width: 1280px;
+            height: 880px;
+
+            -webkit-transform-origin: 0 0;
+            -moz-transform-origin: 0 0;
+            transform-origin: 0 0;
+
+            transform: scale(0.5, 0.5); /* Gets the size down to fit into your .site-container. */
+            overflow: hidden;
+        }
+
+        .site-container
+        iframe.image-640x480 {
+            width: 640px;
+            height: 480px;
+
+            transform: scale(1.0, 1.0); /* Gets the size down to fit into your .site-container. */
+        }
+
+        .site-container
+        iframe.image-1600x1200 {
+            width: 1600px;
+            height: 1200px;
+
+            transform: scale(0.45, 0.45); /* Gets the size down to fit into your .site-container. */
+        }
+
+        .site-container
+        iframe.image-1920x1080 {
+            width: 1920px;
+            height: 1080px;
+
+            transform: scale(0.375, 0.375); /* Gets the size down to fit into your .site-container. */
+        }
+
+        .site-container a {
+            position: absolute;
+            top: 500px;
+            left: 2em;
+            font-weight: bold;
+            z-index: 2;
+            background: rgba(240,255,255,0.4);
+        }
+
+
+    </style>
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script>
+      var preloadImage = function(url, imageHolder) {
+        imageHolder.empty().html('Loading...');
+        image = new Image();
+        image.src = url;
+        image.onload = function() {
+          imageHolder.empty().append(image);
+        };
+        image.onerror = function() {
+          imageHolder.empty().html('That image is not available.');
+        }
+
+      };
+
+      var loveland = {
+        iFrame: {
+          id: 'loveland_ptarmigan',
+          url: 'https://photosskiloveland.com/ptarmigan/ptarmigan.jpg',
+          class: 'image-1920x1080',
+        },
+        link: {
+          title: 'Loveland Ski Area',
+          url: 'https://skiloveland.com/webcams'
+        },
+        shouldReload: true,
+      };
+      var airqualityImage = {
+        iFrame: {
+          id: 'airquality_image',
+          url: 'https://www.colorado.gov/airquality/live_image/chpark.jpg',
+          class: 'image-1600x1200',
+        },
+        link: {
+          title: 'Denver Live Image',
+          url: 'https://www.colorado.gov/airquality/live_image.aspx'
+        },
+        shouldReload: true,
+      };
+      var localRadar = {
+        iFrame: {
+          id: 'local_radar',
+          url: 'https://radblast.wunderground.com/cgi-bin/radar/WUNIDS_map?station=FTG&brand=wui&num=6&delay=15&type=N0R&frame=0&scale=0.5934782608695652&noclutter=0&showstorms=0&mapx=400&mapy=240&centerx=417.69230769230774&centery=234.1025641025641&transx=17.692307692307736&transy=-5.897435897435912&showlabels=1&severe=0&rainsnow=0&lightning=Hide&smooth=1&rand=25726677&lat=39.74000168&lon=-104.98000336&label=Denver',
+          class: 'image-640x480',
+        },
+        link: {
+          title: 'Local Radar',
+          url: 'https://www.wunderground.com/radar/radblast.asp?ID=ftg&lat=39.74000168&lon=-104.98000336&label=Denver'
+        },
+        shouldReload: true,
+      };
+      var weatherStation = {
+        iFrame: {
+          id: 'weather_station',
+          url: 'https://www.wunderground.com/personal-weather-station/dashboard?ID=KCODENVE78',
+          class: '',
+        },
+        link: {
+          title: 'Weather Underground',
+          url: 'https://www.wunderground.com/personal-weather-station/dashboard?ID=KCODENVE78'
+        },
+        shouldReload: false,
+      }
+
+      var frames = [
+        loveland,
+        airqualityImage,
+        localRadar,
+        weatherStation,
+      ];
+      window.onload = function() {
+        var timer = window.setInterval(function() {
+          $.each(frames, function(idx, frame) {
+            if (frame.shouldReload) {
+              var newFrameURL = frame.iFrame.url;
+              if (frame.iFrame.url.indexOf('?') == -1) {
+                newFrameURL = frame.iFrame.url + '?rando=' + Date.now()
+              }
+              // preloadImage(newFrameURL, $(document.getElementById(frame.iFrame.id)));
+              document.getElementById(frame.iFrame.id).src = newFrameURL;
+            }
+          })
+        }, 120000);
+
+        $.each(frames, function(idx, frame) {
+          var iFrameContainer = $(document.createElement('div')).addClass('site-container');
+          var iFrame = $(document.createElement('iframe')).addClass(frame.iFrame.class).attr('id', frame.iFrame.id).attr('src', frame.iFrame.url);
+          var link = $(document.createElement('a')).attr('href', frame.link.url).attr('target', '_blank').append(frame.link.title);
+          iFrameContainer.append(link, iFrame);
+          $('div.content').append(iFrameContainer);
+        })
+        // window.location.reload()
+      }
+
+    </script>
+</head>
+<body>
+<div class="content">
+</div>
+</body>
+</html>
